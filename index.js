@@ -19,13 +19,13 @@ const auth = createAppAuth({
   privateKey: process.env.GITHUB_APP_PRIVATE_KEY,
 });
 
-webhooks.on('issue_comment.created', ({ id, name, payload }) => {
+webhooks.on('issue_comment.created', async ({ id, name, payload }) => {
   const sourceRepo = payload.repository.name
   const result = payload.comment.body.match(/\/transfer ([a-zA-Z0-9-]+)/)
   if (result) {
     const targetRepo = result[1]
     console.log(`${id} Transferring issue number ${payload.issue.number} to repo ${targetRepo}`)
-    transferIssue(sourceRepo, targetRepo, payload.issue.number)
+    await transferIssue(sourceRepo, targetRepo, payload.issue.number)
   }
 })
 
