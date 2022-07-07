@@ -20,7 +20,6 @@ Run `smee --path /api/github/webhooks` and point your webhook to the smee url th
 
 - GITHUB_APP_ID
 - GITHUB_APP_PRIVATE_KEY
-- GITHUB_APP_INSTALLATION_ID
 - SOURCE_OWNER
 - TARGET_OWNER
 - WEBHOOK_SECRET
