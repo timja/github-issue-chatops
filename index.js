@@ -48,6 +48,12 @@ webhooks.on('issue_comment.created', async ({ id, payload }) => {
   const labelMatches = payload.comment.body.match(/\/label ([a-zA-Z\d-]+)/)
   if (labelMatches) {
     console.log(`${id} Labeling issue ${payload.issue.html_url} ${actorRequest}`)
+    return
+  }
+
+  const reviewerMatches = payload.comment.body.match(/\/reviewer ([a-zA-Z\d-]+)/)
+  if (reviewerMatches) {
+    console.log(`${id} Requesting review for TODO at ${payload.issue.html_url} ${actorRequest}`)
   }
 })
 
