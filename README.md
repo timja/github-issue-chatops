@@ -27,6 +27,24 @@ Run `smee --path /api/github/webhooks` and point your webhook to the smee url th
 
 ## Supported commands
 
+### /close
+
+Closes the current issue
+
+#### Permissions required
+
+- Issues
+  - Read and write
+
+### /reopen
+
+Reopens the current issue
+
+#### Permissions required
+
+- Issues
+  - Read and write
+
 ### /transfer <destination_repo>
 
 Transfers a GitHub issue to another repository in the same organization.
