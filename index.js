@@ -18,7 +18,7 @@ const auth = createAppAuth({
   privateKey: process.env.GITHUB_APP_PRIVATE_KEY,
 });
 
-webhooks.on('issue_comment.created', async ({ id, payload }) => {
+webhooks.on('issue_comment.created', async ({id, payload}) => {
   const sourceRepo = payload.repository.name
   const transferMatches = payload.comment.body.match(/\/transfer ([a-zA-Z\d-]+)/)
   const actorRequest = `as requested by ${payload.sender.login}`
@@ -284,12 +284,12 @@ async function closeIssue(token, sourceRepo, issueId, reason) {
         }
       }
     )
-    
+
 
   } catch (err) {
-  console.error('Failed to close issue', err)
+    console.error('Failed to close issue', err)
 
-  console.error(JSON.stringify(err.errors))
+    console.error(JSON.stringify(err.errors))
   }
 }
 
@@ -304,7 +304,7 @@ async function getAuthToken(installationId) {
 async function transferIssue(token, owner, sourceRepo, targetRepo, issueId) {
   try {
 
-    const { target } = await graphql(
+    const {target} = await graphql(
       `
 	query($owner: String!, $targetRepo: String!) {
 		target: repository(owner: $owner, name: $targetRepo) {
