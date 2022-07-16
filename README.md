@@ -10,6 +10,10 @@ GitHub apps are used for authentication to limit the required permissions.
 First you will need to create a GitHub app. Add the permissions required for the commands you are using.
 Add a webhook to the app pointing at your endpoint, the path for the webhook receiver is `/api/github/webhooks`.
 
+This app is multiple organization aware and doesn't need any additional configuration to run in multiple organizations.
+
+_Note: You can't interact across organizations, like requesting reviews from teams in different organizations or transferring issues, this is a GitHub limitation._
+
 ### Local development
 
 The easiest way to develop this locally is to use [smee](https://smee.io).
