@@ -20,13 +20,13 @@ The easiest way to develop this locally is to use [smee](https://smee.io).
 
 Run `smee --path /api/github/webhooks` and point your webhook to the smee url that is outputted e.g. https://smee.io/Mrl4d3W9AUxeaaa
 
+The application runs on port 3000 by default, this can be customized with the `PORT` environment variable.
+
 ### Required environment variables
 
-- GITHUB_APP_ID
-- GITHUB_APP_PRIVATE_KEY
-- SOURCE_OWNER
-- TARGET_OWNER
-- WEBHOOK_SECRET
+- `GITHUB_APP_ID`
+- `GITHUB_APP_PRIVATE_KEY`
+- `WEBHOOK_SECRET`
 
 ## Supported commands
 

@@ -7,6 +7,7 @@ import {createAppAuth} from "@octokit/auth-app"
 const verbose = process.env.VERBOSE === 'true'
 
 const secret = process.env.WEBHOOK_SECRET;
+const port = parseInt(process.env.PORT || '3000', 10);
 
 const webhooks = new Webhooks({
   secret,
@@ -71,7 +72,7 @@ function extractUsersAndTeams(orgName, reviewers) {
   }
 }
 
-createServer(createNodeMiddleware(webhooks)).listen(3000);
+createServer(createNodeMiddleware(webhooks)).listen(port);
 
 async function lookupUser(token, username, originalUser) {
   const result = await graphql(
