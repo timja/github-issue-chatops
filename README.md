@@ -39,6 +39,17 @@ Closes the current issue
 - Issues
   - Read and write
 
+### /label <label1,label2,...>
+
+Adds a label to the current issue or pull request
+
+#### Permissions required
+
+- Issues
+  - Read and write
+- Pull requests
+  - Read and write
+
 ### /reopen
 
 Reopens the current issue

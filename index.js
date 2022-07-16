@@ -18,6 +18,42 @@ const auth = createAppAuth({
   privateKey: process.env.GITHUB_APP_PRIVATE_KEY,
 });
 
+async function labelNameToId(token, login, repository, labelName) {
+  const result = await graphql(
+    `
+  query($login: String!, $repository: String!, $labelName: String!) {
+  repositoryOwner(login: $login) {
+    repository(name: $repository) {
+      label(name: $labelName) {
+        id
+      }
+    }
+  }
+}
+  `,
+    {
+      login,
+      repository,
+      labelName,
+      headers: {
+        authorization: `token ${token}`,
+      }
+    }
+  )
+
+  if (!result.repositoryOwner.repository.label) {
+    return {
+      err: 'NOT_FOUND',
+      label: labelName
+    }
+  }
+
+  return {
+    id: result.repositoryOwner.repository.label.id
+  }
+
+}
+
 webhooks.on('issue_comment.created', async ({id, payload}) => {
   const sourceRepo = payload.repository.name
   const transferMatches = payload.comment.body.match(/\/transfer ([a-zA-Z\d-]+)/)
@@ -44,9 +80,12 @@ webhooks.on('issue_comment.created', async ({id, payload}) => {
     return
   }
 
-  const labelMatches = payload.comment.body.match(/\/label ([a-zA-Z\d-]+)/)
+  const labelMatches = payload.comment.body.match(/\/label ([a-zA-Z\d-, ]+)/)
   if (labelMatches) {
-    console.log(`${id} Labeling issue ${payload.issue.node_id} ${actorRequest}`)
+    const labels = labelMatches[1].split(',')
+
+    console.log(`${id} Labeling issue ${payload.issue.html_url} with labels ${labels} ${actorRequest}`)
+    await addLabel(await getAuthToken(payload.installation.id), payload.repository.owner.login, sourceRepo, payload.issue.node_id, labels)
     return
   }
 
@@ -135,6 +174,56 @@ async function lookupTeam(token, organization, teamName, originalTeamName) {
   }
 }
 
+async function addLabel(token, login, repository, labelableId, labels) {
+  try {
+    const convertedLabels = await Promise.all(labels
+      .map(async label => await labelNameToId(token, login, repository, label))
+    )
+
+    const invalidLabels = convertedLabels.filter(result => result.err !== undefined)
+      .map(result => result.label)
+
+    const labelIds = convertedLabels.filter(result => result.id !== undefined)
+      .map(result => result.id)
+
+    await graphql(
+      `
+  mutation($labelableId: ID!, $labelIds: [ID!]!) {
+    addLabelsToLabelable(input: {
+      labelableId: $labelableId,
+      labelIds: $labelIds
+    }) {
+      clientMutationId
+    }
+  }
+  `,
+      {
+        labelableId,
+        labelIds,
+        headers: {
+          authorization: `token ${token}`,
+        }
+      }
+    )
+
+    if (invalidLabels.length || invalidLabels.length) {
+
+      const comment = `I wasn't able to add the following labels: ${invalidLabels.join(',')}
+
+Check that the label exists and is spelt right then try again.
+      `
+
+      await reportError(token, labelableId, comment);
+    }
+
+  } catch (err) {
+    console.error('Failed to add label', err)
+
+    console.error(JSON.stringify(err.errors))
+  }
+}
+
+
 async function requestReviewers(token, organization, sourceRepo, issueId, users, teams) {
   try {
     const convertedUsers = await Promise.all(users
@@ -202,7 +291,7 @@ Check that the reviewer is spelt right and try again.
 
 
   } catch (err) {
-    console.error('Failed to request reviewers issue', err)
+    console.error('Failed to request reviewers', err)
 
     console.error(JSON.stringify(err.errors))
   }
