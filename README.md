@@ -44,6 +44,17 @@ Reopens the current issue
 - Issues
   - Read and write
 
+### reviewers <reviewer1,reviewer2,@org/team1...>
+
+Adds reviewers to the pull request.
+
+#### Permissions required
+
+- Pull requests
+  - Read and write
+- Organizations -> Members
+  - Read-only
+
 ### /transfer <destination_repo>
 
 Transfers a GitHub issue to another repository in the same organization.

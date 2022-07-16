@@ -4,9 +4,7 @@ import {createServer} from 'http'
 import {createNodeMiddleware, Webhooks} from '@octokit/webhooks';
 import {createAppAuth} from "@octokit/auth-app"
 
-const sourceOwner = process.env.SOURCE_OWNER || 'timja'
-
-const targetOwner = process.env.TARGET_OWNER || 'timja'
+const verbose = process.env.VERBOSE === 'true'
 
 const secret = process.env.WEBHOOK_SECRET;
 
@@ -26,7 +24,7 @@ webhooks.on('issue_comment.created', async ({ id, payload }) => {
   if (transferMatches) {
     const targetRepo = transferMatches[1]
     console.log(`${id} Transferring issue ${payload.issue.html_url} to repo ${targetRepo} ${actorRequest}`)
-    await transferIssue(await getAuthToken(payload.installation.id), sourceRepo, targetRepo, payload.issue.node_id)
+    await transferIssue(await getAuthToken(payload.installation.id), payload.repository.owner.login, sourceRepo, targetRepo, payload.issue.node_id)
     return
   }
 
@@ -51,25 +49,130 @@ webhooks.on('issue_comment.created', async ({ id, payload }) => {
     return
   }
 
-  const reviewerMatches = payload.comment.body.match(/\/reviewer ([a-zA-Z\d-]+)/)
+  const reviewerMatches = payload.comment.body.match(/\/reviewers? ([@a-z/A-Z\d-,]+)/)
   if (reviewerMatches) {
-    console.log(`${id} Requesting review for TODO at ${payload.issue.html_url} ${actorRequest}`)
-    await requestReviewers(await getAuthToken(payload.installation.id), sourceRepo, payload.issue.node_id, [], [])
+    const reviewersToBeParsed = reviewerMatches[1].split(',')
+
+    console.log(`${id} Requesting review for ${reviewersToBeParsed} at ${payload.issue.html_url} ${actorRequest}`)
+    const reviewers = extractUsersAndTeams(payload.repository.owner.login, reviewersToBeParsed)
+    await requestReviewers(await getAuthToken(payload.installation.id), payload.repository.owner.login, sourceRepo, payload.issue.node_id, reviewers.users, reviewers.teams)
+    return
+  }
+
+  if (verbose) {
+    console.log('No match for', payload.comment.body)
   }
 })
 
+function extractUsersAndTeams(orgName, reviewers) {
+  return {
+    teams: reviewers.filter(reviewer => reviewer.includes('/')),
+    users: reviewers.filter(reviewer => !reviewer.includes('/')),
+  }
+}
+
 createServer(createNodeMiddleware(webhooks)).listen(3000);
 
-async function requestReviewers(token, sourceRepo, issueId, users, teams) {
+async function lookupUser(token, username, originalUser) {
+  const result = await graphql(
+    `
+      query($login :String!) {
+        repositoryOwner(login: $login) {
+          ... on User {
+            id
+          }
+        }
+      }
+    `, {
+      login: username,
+      headers: {
+        authorization: `token ${token}`,
+      }
+    }
+  )
+
+  if (!result.repositoryOwner) {
+    return {
+      err: 'NOT_FOUND',
+      user: originalUser,
+    }
+  }
+
+  return {
+    id: result.repositoryOwner?.id
+  }
+}
+
+async function lookupTeam(token, organization, teamName, originalTeamName) {
+  const result = await graphql(
+    `
+    query($login :String!, $teamName:String!) {
+      organization(login: $login) {
+        team(slug: $teamName) {
+          id
+        }
+      }
+    }
+    `, {
+      login: organization,
+      teamName: teamName,
+      headers: {
+        authorization: `token ${token}`,
+      }
+    }
+  )
+
+  if (!result.organization.team) {
+    return {
+      err: 'NOT_FOUND',
+      team: originalTeamName,
+    }
+  }
+
+  return {
+    id: result.organization.team.id
+  }
+}
+
+async function requestReviewers(token, organization, sourceRepo, issueId, users, teams) {
   try {
-    const userIds = []
-    const teamIds = []
+    const convertedUsers = await Promise.all(users
+      .map(user => {
+        return {
+          original_user: user,
+          user: user.replace(/^@/, ''),
+        }
+      })
+      .map(async result => await lookupUser(token, result.user, result.original_user))
+    )
+
+    const invalidUsers = convertedUsers.filter(result => result.err !== undefined)
+      .map(result => result.user)
+
+    const userIds = convertedUsers.filter(result => result.id !== undefined)
+      .map(result => result.id)
+
+    const convertedTeams = await Promise.all(teams
+      .map(teamSlug => {
+        return {
+          original_team: teamSlug,
+          team: teamSlug.replace(`@${organization}/`, '')
+        }
+      })
+      .map(async result => await lookupTeam(token, organization, result.team, result.original_team))
+    )
+
+    const invalidTeams = convertedTeams.filter(result => result.err !== undefined)
+      .map(result => result.team)
+
+    const teamIds = convertedTeams.filter(result => result.id !== undefined)
+      .map(result => result.id)
 
     await graphql(
       `
   mutation($pullRequestId: ID!, $userIds: [ID!]!, $teamIds:[ID!]!) {
     requestReviews( input: {pullRequestId: $pullRequestId, userIds: $userIds, teamIds: $teamIds, union: true}) {
-      issue {
+      pullRequest {
         url
       }
     }
@@ -77,13 +180,24 @@ async function requestReviewers(token, sourceRepo, issueId, users, teams) {
   `,
       {
         pullRequestId: issueId,
-        userIds: userIds,
-        teamIds: teamIds,
+        userIds,
+        teamIds,
         headers: {
           authorization: `token ${token}`,
         }
       }
     )
+
+    if (invalidUsers.length || invalidTeams.length) {
+      const invalidReviewers = [...invalidUsers, ...invalidTeams]
+
+      const comment = `I wasn't able to request review for the following: ${invalidReviewers.join(',')}
+
+Check that the reviewer is spelt right and try again.
+      `
+
+      await reportError(token, issueId, comment);
+    }
 
 
   } catch (err) {
@@ -91,6 +205,32 @@ async function requestReviewers(token, sourceRepo, issueId, users, teams) {
 
     console.error(JSON.stringify(err.errors))
   }
+}
+
+async function reportError(token, subjectId, comment) {
+  await graphql(
+    `
+    mutation($comment: String!, $subjectId: ID!) {
+      addComment(input: {
+        subjectId: $subjectId,
+        body: $comment
+      }) {
+        commentEdge {
+          node {
+            id
+          }
+        }
+      }
+    }
+    `,
+    {
+      comment,
+      subjectId,
+      headers: {
+        authorization: `token ${token}`,
+      }
+    }
+  )
 }
 
 
@@ -160,19 +300,19 @@ async function getAuthToken(installationId) {
   return result.token
 }
 
-async function transferIssue(token, sourceRepo, targetRepo, issueId) {
+async function transferIssue(token, owner, sourceRepo, targetRepo, issueId) {
   try {
 
     const { target } = await graphql(
       `
-	query($targetOwner: String!, $targetRepo: String!) {
-		target: repository(owner: $targetOwner, name: $targetRepo) {
+	query($owner: String!, $targetRepo: String!) {
+		target: repository(owner: $owner, name: $targetRepo) {
 			id
 		}
 	}
   `,
       {
-        targetOwner,
+        owner,
         targetRepo,
         headers: {
           authorization: `token ${token}`,
