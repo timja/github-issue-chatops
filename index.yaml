@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  github-comment-ops:
+  - apiVersion: v2
+    appVersion: 1.0.3
+    created: "2022-07-17T22:10:53.732889248Z"
+    description: A Helm chart for Kubernetes
+    digest: e3ca07ba2d1c5afbc60c43b702ff2314621279cb575297b6d3c2a99a43d8149d
+    name: github-comment-ops
+    type: application
+    urls:
+    - https://github.com/timja/github-comment-ops/releases/download/github-comment-ops-1.1.2/github-comment-ops-1.1.2.tgz
+    version: 1.1.2
+generated: "2022-07-17T22:10:53.732914448Z"
