@@ -1,6 +1,6 @@
 # GitHub issue management - ChatOps
 
-A tool for managing GitHub issues and pull requests via ChatOps.
+A tool for managing GitHub issues and pull requests via comment-ops.
 It uses GitHub webhooks to scale across repositories without needing to add a GitHub action to each of them.
 
 GitHub apps are used for authentication to limit the required permissions.
