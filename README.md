@@ -50,6 +50,17 @@ Adds a label to the current issue or pull request
 - Pull requests
   - Read and write
 
+### /remove-label <label1,label2,...>
+
+Removes a label from the current issue or pull request
+
+#### Permissions required
+
+- Issues
+  - Read and write
+- Pull requests
+  - Read and write
+
 ### /reopen
 
 Reopens the current issue
@@ -62,6 +73,9 @@ Reopens the current issue
 ### /reviewer(s) <reviewer1,reviewer2,@org/team1...>
 
 Adds reviewers to the pull request.
+
+<!-- the GitHub API doesn't error in this case it comes back successful -->
+_Note: If a team exists but the team doesn't have read access to the repository this will silently fail._
 
 #### Permissions required
 

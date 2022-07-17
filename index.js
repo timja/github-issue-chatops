@@ -89,6 +89,15 @@ webhooks.on('issue_comment.created', async ({id, payload}) => {
     return
   }
 
+  const removeLabelMatches = payload.comment.body.match(/\/remove-label ([a-zA-Z\d-, ]+)/)
+  if (removeLabelMatches) {
+    const labels = removeLabelMatches[1].split(',')
+
+    console.log(`${id} Removing label(s) from issue ${payload.issue.html_url}, labels ${labels} ${actorRequest}`)
+    await removeLabel(await getAuthToken(payload.installation.id), payload.repository.owner.login, sourceRepo, payload.issue.node_id, labels)
+    return
+  }
+
   const reviewerMatches = payload.comment.body.match(/\/reviewers? ([@a-z/A-Z\d-,]+)/)
   if (reviewerMatches) {
     const reviewersToBeParsed = reviewerMatches[1].split(',')
@@ -223,6 +232,54 @@ Check that the label exists and is spelt right then try again.
   }
 }
 
+async function removeLabel(token, login, repository, labelableId, labels) {
+  try {
+    const convertedLabels = await Promise.all(labels
+      .map(async label => await labelNameToId(token, login, repository, label))
+    )
+
+    const invalidLabels = convertedLabels.filter(result => result.err !== undefined)
+      .map(result => result.label)
+
+    const labelIds = convertedLabels.filter(result => result.id !== undefined)
+      .map(result => result.id)
+
+    await graphql(
+      `
+  mutation($labelableId: ID!, $labelIds: [ID!]!) {
+    removeLabelsFromLabelable(input: {
+      labelableId: $labelableId,
+      labelIds: $labelIds
+    }) {
+      clientMutationId
+    }
+  }
+  `,
+      {
+        labelableId,
+        labelIds,
+        headers: {
+          authorization: `token ${token}`,
+        }
+      }
+    )
+
+    if (invalidLabels.length || invalidLabels.length) {
+
+      const comment = `I wasn't able to remove the following labels: ${invalidLabels.join(',')}
+
+Check that the label exists and is spelt right then try again.
+      `
+
+      await reportError(token, labelableId, comment);
+    }
+
+  } catch (err) {
+    console.error('Failed to add label', err)
+
+    console.error(JSON.stringify(err.errors))
+  }
+}
 
 async function requestReviewers(token, organization, sourceRepo, issueId, users, teams) {
   try {
