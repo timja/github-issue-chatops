@@ -8,7 +8,8 @@ WORKDIR /app
 
 COPY ["package.json", "package-lock.json*", "./"]
 
-RUN npm install --production
+# https://typicode.github.io/husky/#/?id=with-npm
+RUN npm ci --omit=dev --ignore-scripts
 
 COPY . .
 
