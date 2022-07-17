@@ -1,4 +1,4 @@
-# GitHub issue management - ChatOps
+# GitHub issue and pull request management with Comment-Ops
 
 A tool for managing GitHub issues and pull requests via comment-ops.
 It uses GitHub webhooks to scale across repositories without needing to add a GitHub action to each of them.
