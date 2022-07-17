@@ -16,7 +16,7 @@
   "dependencies": {
     "@octokit/auth-app": "^3.6.1",
     "@octokit/graphql": "^4.8.0",
-    "@octokit/webhooks": "^10.0.1"
+    "@octokit/webhooks": "^10.0.8"
   },
   "devDependencies": {
     "husky": "^8.0.1",
