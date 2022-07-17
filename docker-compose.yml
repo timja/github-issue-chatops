@@ -1,16 +1,15 @@
-version: '3.8'
+version: "3.8"
 
 services:
- app:
-  build:
-   context: .
-  ports:
-   - 3000:3000
-  environment:
-   - GITHUB_APP_ID
-   - GITHUB_APP_PRIVATE_KEY
-   - GITHUB_APP_INSTALLATION_ID
-   - SOURCE_OWNER
-   - TARGET_OWNER
-   - WEBHOOK_SECRET
-
+  app:
+    build:
+      context: .
+    ports:
+      - 3000:3000
+    environment:
+      - GITHUB_APP_ID
+      - GITHUB_APP_PRIVATE_KEY
+      - GITHUB_APP_INSTALLATION_ID
+      - SOURCE_OWNER
+      - TARGET_OWNER
+      - WEBHOOK_SECRET

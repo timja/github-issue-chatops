@@ -75,6 +75,7 @@ Reopens the current issue
 Adds reviewers to the pull request.
 
 <!-- the GitHub API doesn't error in this case it comes back successful -->
+
 _Note: If a team exists but the team doesn't have read access to the repository this will silently fail._
 
 #### Permissions required

@@ -1,7 +1,7 @@
 export async function getAuthToken(auth, installationId) {
   const result = await auth({
     type: "installation",
-    installationId
+    installationId,
   });
-  return result.token
+  return result.token;
 }
