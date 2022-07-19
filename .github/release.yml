@@ -14,6 +14,10 @@ changelog:
       labels:
         - Semver-Minor
         - enhancement
+    - title: 🐛 Bug fixes
+      labels:
+        - bug
+        - bugfix
     - title: 📝 Documentation updates
       labels:
         - documentation
