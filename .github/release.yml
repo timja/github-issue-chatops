@@ -1,0 +1,34 @@
+# .github/release.yml
+
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+      - reverted
+  categories:
+    - title: 🛠 Breaking Changes
+      labels:
+        - Semver-Major
+        - breaking-change
+    - title: 🎉 New features and improvements
+      labels:
+        - Semver-Minor
+        - enhancement
+    - title: 📝 Documentation updates
+      labels:
+        - documentation
+    - title: 👻 Maintenance
+      labels:
+        - chore
+        - internal
+        - maintenance
+    - title: 📦 Dependency updates
+      labels:
+        - dependencies
+    - title: 🚦 Tests
+      labels:
+        - test
+        - tests
+    - title: ✍ Other Changes
+      labels:
+        - "*"
