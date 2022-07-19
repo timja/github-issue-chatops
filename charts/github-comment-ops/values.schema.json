@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "required": [
+    "github"
+  ],
+  "properties": {
+    "github": {
+      "type": "object",
+      "required": [
+        "app_id",
+        "app_private_key",
+        "webhook_secret"
+      ],
+      "properties": {
+        "app_id": {
+          "type": ["integer", "string"]
+        },
+        "app_private_key": {
+          "type": "string"
+        },
+        "webhook_secret": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
