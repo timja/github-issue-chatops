@@ -150,4 +150,15 @@ function extractUsersAndTeams(orgName, reviewers) {
   };
 }
 
-createServer(createNodeMiddleware(webhooks)).listen(port);
+createServer(
+  createNodeMiddleware(webhooks, {
+    // Return 200 for health probes
+    onUnhandledRequest: (request, res) => {
+      res.setHeader("Content-Type", "text/plain");
+      res.write("For webhooks POST to path /api/github/webhooks\n");
+      res.end();
+    },
+  })
+).listen(port, () => {
+  console.log(`Listening for events on port ${port}`);
+});
