@@ -50,7 +50,7 @@ export async function addLabel(token, login, repository, labelableId, labels) {
         ","
       )}
 
-Check that the label exists and is spelt right then try again.
+Check that [the label exists](https://github.com/${repository}/labels) and is spelt right then try again.
       `;
 
       await reportError(token, labelableId, comment);
