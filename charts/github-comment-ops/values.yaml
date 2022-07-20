@@ -44,7 +44,7 @@ service:
 ingress:
   enabled: false
   className: ""
-  # -- Key value pairs for annotations, e.g. `kubernetes.io/tls-acme: "true"`
+  # -- Key value pairs for annotations2, e.g. `kubernetes.io/tls-acme: "true"`
   annotations: {}
     # kubernetes.io/tls-acme: "true"
   hosts:
