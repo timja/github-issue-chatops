@@ -13,6 +13,6 @@ jobs:
       - uses: actions/setup-python@v3
       - run: |
           wget https://github.com/norwoodj/helm-docs/releases/download/v1.11.0/helm-docs_1.11.0_Linux_x86_64.deb
-          sudo apt update && sudo install -y ./helm-docs_1.11.0_Linux_x86_64.deb
+          sudo apt update && sudo apt install -y ./helm-docs_1.11.0_Linux_x86_64.deb
         name: Install helm-docs
       - uses: pre-commit/action@v3.0.0
