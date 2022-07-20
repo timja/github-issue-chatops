@@ -7,7 +7,8 @@ replicaCount: 1
 image:
   repository: ghcr.io/timja/github-comment-ops
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  # -- Overrides the image tag whose default is the chart appVersion.
+  # @default -- `{{ .Chart.appVersion }}`
   tag: ""
 
 imagePullSecrets: []
@@ -43,8 +44,8 @@ service:
 ingress:
   enabled: false
   className: ""
+  # -- Key value pairs for annotations, e.g. `kubernetes.io/tls-acme: "true"`
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
@@ -56,6 +57,7 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+# -- Resource limits
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -69,14 +71,26 @@ resources: {}
   #   memory: 128Mi
 
 autoscaling:
+  # -- Enables autoscaling with the HorizontalPodAutoscaler
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+# -- Object for node selector, passed through as-is
 nodeSelector: {}
 
+# -- List of tolerations, passed through as-is
 tolerations: []
 
+# -- Object for node affinity, passed through as-is
 affinity: {}
+
+github:
+  # -- The app ID for the GitHub app (required)
+  app_id:
+  # -- The private key for the GitHub app (required)
+  app_private_key:
+  # -- The webhook secret for the GitHub app (required)
+  webhook_secret:

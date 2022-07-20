@@ -1,0 +1,9 @@
+repos:
+  - repo: https://github.com/norwoodj/helm-docs
+    rev: v1.2.0
+    hooks:
+      - id: helm-docs
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: "v2.7.1" # Use the sha or tag you want to point at
+    hooks:
+      - id: prettier
