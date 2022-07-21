@@ -7,10 +7,11 @@ GitHub apps are used for authentication to limit the required permissions.
 
 ## Getting started
 
-First you will need to create a GitHub app. Add the permissions required for the commands you are using.
-Add a webhook to the app pointing at your endpoint, the path for the webhook receiver is `/api/github/webhooks`.
+First you will need to create a GitHub app. Add the permissions required for the commands you are using (see next section), and tick "Subscribe to events" > "Issue comment"
 
-This app is multiple organization aware and doesn't need any additional configuration to run in multiple organizations.
+Add a webhook to the app pointing at your endpoint, the path for the webhook receiver is `<your-app-endpoint>/api/github/webhooks`.
+
+This app is multiple organization aware and doesn't need any additional configuration to run in multiple organizations, you just need to install it on them.
 
 _Note: You can't interact across organizations, like requesting reviews from teams in different organizations or transferring issues, this is a GitHub limitation._
 
@@ -21,6 +22,17 @@ The easiest way to develop this locally is to use [smee](https://smee.io).
 Run `smee --path /api/github/webhooks` and point your webhook to the smee url that is outputted e.g. https://smee.io/Mrl4d3W9AUxeaaa
 
 The application runs on port 3000 by default, this can be customized with the `PORT` environment variable.
+
+### Chart deployment
+
+You can deploy this application in Kubernetes with the helm chart included in this repo:
+
+```
+helm repo add github-comment-ops https://timja.github.io/github-comment-ops
+helm install github-comment-ops github-comment-ops/github-comment-ops
+```
+
+See more in the chart README: https://github.com/timja/github-comment-ops/tree/main/charts/github-comment-ops
 
 ### Required environment variables
 
