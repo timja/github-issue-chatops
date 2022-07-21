@@ -25,7 +25,7 @@ The application runs on port 3000 by default, this can be customized with the `P
 
 ### Chart deployment
 
-You can deploy this application in Kubernetes with the helm chart included in this repo:
+You can deploy this application to Kubernetes with the helm chart included in this repo:
 
 ```
 helm repo add github-comment-ops https://timja.github.io/github-comment-ops
