@@ -2,6 +2,18 @@ apiVersion: v1
 entries:
   github-comment-ops:
   - apiVersion: v2
+    appVersion: v1.1.1
+    created: "2022-07-21T15:46:23.591969143Z"
+    description: A tool for managing GitHub issues and pull requests via comment-ops.
+      It uses GitHub webhooks to scale across repositories without needing to add
+      a GitHub action to each of them.
+    digest: 7f5572dd7494e802e35f61674ea31a3d041479a6e941019b6788cb8e288d1525
+    name: github-comment-ops
+    type: application
+    urls:
+    - https://github.com/timja/github-comment-ops/releases/download/github-comment-ops-1.2.1/github-comment-ops-1.2.1.tgz
+    version: 1.2.1
+  - apiVersion: v2
     appVersion: v1.1.0
     created: "2022-07-20T08:52:07.730386535Z"
     description: A tool for managing GitHub issues and pull requests via comment-ops.
@@ -59,4 +71,4 @@ entries:
     urls:
     - https://github.com/timja/github-comment-ops/releases/download/github-comment-ops-1.1.2/github-comment-ops-1.1.2.tgz
     version: 1.1.2
-generated: "2022-07-20T08:52:07.730628247Z"
+generated: "2022-07-21T15:46:23.591992143Z"
