@@ -32,7 +32,7 @@ helm repo add github-comment-ops https://timja.github.io/github-comment-ops
 helm install github-comment-ops github-comment-ops/github-comment-ops
 ```
 
-See more in the chart README: https://github.com/timja/github-comment-ops/tree/main/charts/github-comment-ops
+See more in the [chart README](charts/github-comment-ops)
 
 ### Required environment variables
 
