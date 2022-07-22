@@ -4,6 +4,15 @@
 
 A tool for managing GitHub issues and pull requests via comment-ops. It uses GitHub webhooks to scale across repositories without needing to add a GitHub action to each of them.
 
+## Chart deployment
+
+You can deploy this application to Kubernetes with the helm chart included in this repo:
+
+```
+helm repo add github-comment-ops https://timja.github.io/github-comment-ops
+helm install github-comment-ops github-comment-ops/github-comment-ops
+```
+
 ## Example
 
 ```yaml
