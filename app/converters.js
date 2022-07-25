@@ -8,5 +8,5 @@ export function extractUsersAndTeams(orgName, reviewers) {
 }
 
 export function extractCommaSeparated(item) {
-  return item.split(",").filter(Boolean)
+  return item.split(",").filter(Boolean);
 }

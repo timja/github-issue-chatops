@@ -69,7 +69,7 @@ export async function router(auth, id, payload, verbose) {
 
   const labelMatches = labelMatcher(payload.comment.body);
   if (labelMatches) {
-    const labels = extractCommaSeparated(labelMatches[1])
+    const labels = extractCommaSeparated(labelMatches[1]);
 
     console.log(
       `${id} Labeling issue ${payload.issue.html_url} with labels ${labels} ${actorRequest}`
@@ -86,7 +86,7 @@ export async function router(auth, id, payload, verbose) {
 
   const removeLabelMatches = removeLabelMatcher(payload.comment.body);
   if (removeLabelMatches) {
-    const labels = extractCommaSeparated(removeLabelMatches[1])
+    const labels = extractCommaSeparated(removeLabelMatches[1]);
 
     console.log(
       `${id} Removing label(s) from issue ${payload.issue.html_url}, labels ${labels} ${actorRequest}`

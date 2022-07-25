@@ -82,16 +82,16 @@ describe("converters", () => {
       const labels = extractCommaSeparated("label1,label2");
 
       expect(labels).toEqual(expect.arrayContaining(actual));
-    })
+    });
     test("remove empty entries in split", () => {
       const labels = extractCommaSeparated("label1,,label2");
 
       expect(labels).toEqual(expect.arrayContaining(actual));
-    })
+    });
     test("remove empty string entries in split", () => {
       const labels = extractCommaSeparated("label1, ,label2");
 
       expect(labels).toEqual(expect.arrayContaining(actual));
-    })
-  })
+    });
+  });
 });
