@@ -78,6 +78,7 @@ describe("converters", () => {
     });
   });
   describe("extractCommaSeparated", () => {
+    const actual = ["label1", "label2"];
     test("split comma", () => {
       const labels = extractCommaSeparated("label1,label2");
 
