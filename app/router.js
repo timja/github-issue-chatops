@@ -19,6 +19,15 @@ import { extractCommaSeparated, extractUsersAndTeams } from "./converters.js";
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
+
+  const excludedRepositories = process.env.EXCLUDED_REPOSITORIES.split(',')
+  if (excludedRepositories.includes(sourceRepo)) {
+    console.log(
+      `This ${sourceRepo} repository is excluded from github-comment-ops`
+    );
+    return;
+  }
+
   const transferMatches = transferMatcher(payload.comment.body);
   const actorRequest = `as requested by ${payload.sender.login}`;
   if (transferMatches) {
