@@ -15,7 +15,7 @@ import {
   transferIssue,
 } from "./github.js";
 import { getAuthToken } from "./auth.js";
-import { extractUsersAndTeams } from "./converters.js";
+import { extractCommaSeparated, extractUsersAndTeams } from "./converters.js";
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
@@ -69,7 +69,7 @@ export async function router(auth, id, payload, verbose) {
 
   const labelMatches = labelMatcher(payload.comment.body);
   if (labelMatches) {
-    const labels = labelMatches[1].split(",");
+    const labels = extractCommaSeparated(labelMatches[1]);
 
     console.log(
       `${id} Labeling issue ${payload.issue.html_url} with labels ${labels} ${actorRequest}`
@@ -86,7 +86,7 @@ export async function router(auth, id, payload, verbose) {
 
   const removeLabelMatches = removeLabelMatcher(payload.comment.body);
   if (removeLabelMatches) {
-    const labels = removeLabelMatches[1].split(",");
+    const labels = extractCommaSeparated(removeLabelMatches[1]);
 
     console.log(
       `${id} Removing label(s) from issue ${payload.issue.html_url}, labels ${labels} ${actorRequest}`

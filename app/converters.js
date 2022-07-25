@@ -6,3 +6,7 @@ export function extractUsersAndTeams(orgName, reviewers) {
     users: split.filter((reviewer) => !reviewer.includes("/")),
   };
 }
+
+export function extractCommaSeparated(item) {
+  return item.split(",").filter(Boolean);
+}
