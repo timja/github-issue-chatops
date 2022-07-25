@@ -82,7 +82,7 @@ Reopens the current issue
 - Issues
   - Read and write
 
-### /reviewer(s) <reviewer1,reviewer2,@org/team1...>
+### /reviewer(s) <reviewer1[, ]reviewer2[, ]@org/team1...>
 
 Adds reviewers to the pull request.
 
