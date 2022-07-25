@@ -15,7 +15,7 @@
   "dependencies": {
     "@octokit/auth-app": "^4.0.4",
     "@octokit/graphql": "^5.0.0",
-    "@octokit/webhooks": "^10.0.8"
+    "@octokit/webhooks": "^10.0.9"
   },
   "devDependencies": {
     "prettier": "2.7.1"
