@@ -1,6 +1,5 @@
 export function extractUsersAndTeams(orgName, reviewers) {
-  const separator = reviewers.includes(",") ? "," : " ";
-  const split = reviewers.split(separator);
+  const split = reviewers.split(/[,\s]/);
 
   return {
     teams: split.filter((reviewer) => reviewer.includes("/")),
