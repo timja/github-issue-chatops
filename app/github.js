@@ -45,7 +45,7 @@ export async function addLabel(token, login, repository, labelableId, labels) {
       }
     );
 
-    if (invalidLabels.length || invalidLabels.length) {
+    if (invalidLabels.length > 0) {
       const comment = `I wasn't able to add the following labels: ${invalidLabels.join(
         ","
       )}
@@ -55,10 +55,10 @@ Check that [the label exists](https://github.com/${login}/${repository}/labels) 
 
       await reportError(token, labelableId, comment);
     }
-  } catch (err) {
-    console.error("Failed to add label", err);
+  } catch (error) {
+    console.error("Failed to add label", error);
 
-    console.error(JSON.stringify(err.errors));
+    console.error(JSON.stringify(error.errors));
   }
 }
 
@@ -131,7 +131,7 @@ export async function removeLabel(
       }
     );
 
-    if (invalidLabels.length || invalidLabels.length) {
+    if (invalidLabels.length > 0) {
       const comment = `I wasn't able to remove the following labels: ${invalidLabels.join(
         ","
       )}
@@ -141,10 +141,10 @@ Check that [the label exists](https://github.com/${login}/${repository}/labels) 
 
       await reportError(token, labelableId, comment);
     }
-  } catch (err) {
-    console.error("Failed to add label", err);
+  } catch (error) {
+    console.error("Failed to add label", error);
 
-    console.error(JSON.stringify(err.errors));
+    console.error(JSON.stringify(error.errors));
   }
 }
 
@@ -253,10 +253,10 @@ export async function reopenIssue(token, sourceRepo, issueId) {
         },
       }
     );
-  } catch (err) {
-    console.error("Failed to reopen issue", err);
+  } catch (error) {
+    console.error("Failed to reopen issue", error);
 
-    console.error(JSON.stringify(err.errors));
+    console.error(JSON.stringify(error.errors));
   }
 }
 
@@ -345,7 +345,7 @@ export async function requestReviewers(
       }
     );
 
-    if (invalidUsers.length || invalidTeams.length) {
+    if (invalidUsers.length > 0 || invalidTeams.length > 0) {
       const invalidReviewers = [...invalidUsers, ...invalidTeams];
 
       const comment = `I wasn't able to request review for the following reviewer(s): ${invalidReviewers.join(
@@ -357,10 +357,10 @@ Check that the reviewer is spelt right and try again.
 
       await reportError(token, issueId, comment);
     }
-  } catch (err) {
-    console.error("Failed to request reviewers", err);
+  } catch (error) {
+    console.error("Failed to request reviewers", error);
 
-    console.error(JSON.stringify(err.errors));
+    console.error(JSON.stringify(error.errors));
   }
 }
 
@@ -384,10 +384,10 @@ export async function closeIssue(token, sourceRepo, issueId, reason) {
         },
       }
     );
-  } catch (err) {
-    console.error("Failed to close issue", err);
+  } catch (error) {
+    console.error("Failed to close issue", error);
 
-    console.error(JSON.stringify(err.errors));
+    console.error(JSON.stringify(error.errors));
   }
 }
 
@@ -434,9 +434,9 @@ export async function transferIssue(
         },
       }
     );
-  } catch (err) {
-    console.error("Failed to transfer issue", err);
+  } catch (error) {
+    console.error("Failed to transfer issue", error);
 
-    console.error(JSON.stringify(err.errors));
+    console.error(JSON.stringify(error.errors));
   }
 }

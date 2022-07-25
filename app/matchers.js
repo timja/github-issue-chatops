@@ -1,5 +1,5 @@
 export function transferMatcher(text) {
-  return text.match(/\/transfer ([a-zA-Z\d-]+)/);
+  return text.match(/\/transfer ([\dA-Za-z-]+)/);
 }
 
 export function closeMatcher(text) {
@@ -11,13 +11,13 @@ export function reopenMatcher(text) {
 }
 
 export function labelMatcher(text) {
-  return text.match(/\/label ([a-zA-Z\d-, ]+)/);
+  return text.match(/\/label ([\sA-Za-z\d-,]+)/);
 }
 
 export function removeLabelMatcher(text) {
-  return text.match(/\/remove-label ([a-zA-Z\d-, ]+)/);
+  return text.match(/\/remove-label ([\sA-Za-z\d-,]+)/);
 }
 
 export function reviewerMatcher(text) {
-  return text.match(/\/reviewers? ([@a-z/A-Z\d-, ]+)/);
+  return text.match(/\/reviewers? ([\s/@A-Za-z\d-,]+)/);
 }
