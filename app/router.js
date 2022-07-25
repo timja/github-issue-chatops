@@ -15,6 +15,7 @@ import {
   transferIssue,
 } from "./github.js";
 import { getAuthToken } from "./auth.js";
+import { extractUsersAndTeams } from "./converters.js";
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
@@ -102,14 +103,12 @@ export async function router(auth, id, payload, verbose) {
 
   const reviewerMatches = reviewerMatcher(payload.comment.body);
   if (reviewerMatches) {
-    const reviewersToBeParsed = reviewerMatches[1].split(",");
-
     console.log(
-      `${id} Requesting review for ${reviewersToBeParsed} at ${payload.issue.html_url} ${actorRequest}`
+      `${id} Requesting review for ${reviewerMatches[1]} at ${payload.issue.html_url} ${actorRequest}`
     );
     const reviewers = extractUsersAndTeams(
       payload.repository.owner.login,
-      reviewersToBeParsed
+      reviewerMatches[1]
     );
     await requestReviewers(
       await getAuthToken(auth, payload.installation.id),
@@ -125,11 +124,4 @@ export async function router(auth, id, payload, verbose) {
   if (verbose) {
     console.log("No match for", payload.comment.body);
   }
-}
-
-function extractUsersAndTeams(orgName, reviewers) {
-  return {
-    teams: reviewers.filter((reviewer) => reviewer.includes("/")),
-    users: reviewers.filter((reviewer) => !reviewer.includes("/")),
-  };
 }

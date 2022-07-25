@@ -3,7 +3,7 @@ export function transferMatcher(text) {
 }
 
 export function closeMatcher(text) {
-  return text.match(/\/close ?(not-planned)?/);
+  return text.match(/\/close (not-planned)|\/close/);
 }
 
 export function reopenMatcher(text) {
@@ -19,5 +19,5 @@ export function removeLabelMatcher(text) {
 }
 
 export function reviewerMatcher(text) {
-  return text.match(/\/reviewers? ([@a-z/A-Z\d-,]+)/);
+  return text.match(/\/reviewers? ([@a-z/A-Z\d-, ]+)/);
 }
