@@ -12,28 +12,56 @@ import {
   removeLabel,
   reopenIssue,
   requestReviewers,
+  reportError,
   transferIssue,
 } from "./github.js";
 import { getAuthToken } from "./auth.js";
 import { extractCommaSeparated, extractUsersAndTeams } from "./converters.js";
+import { labelEnabled, transferEnabled } from "./command-enabled.js";
+import { defaultConfig } from "./default-config.js";
+
+const { Octokit } = require("@octokit/core");
+const { config, composeConfigGet } = require("@probot/octokit-plugin-config");
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
   const transferMatches = transferMatcher(payload.comment.body);
   const actorRequest = `as requested by ${payload.sender.login}`;
+
+  const authToken = await getAuthToken(auth, payload.installation.id);
+  const octokit = new Octokit({ auth: authToken });
+
+  // TODO validate against schema
+  const { config } = await octokit.config.get({
+    owner: payload.repository.owner.login,
+    repo: sourceRepo,
+    path: ".github/comment-ops.yml",
+    defaults: defaultConfig,
+  });
+
   if (transferMatches) {
-    const targetRepo = transferMatches[1];
-    console.log(
-      `${id} Transferring issue ${payload.issue.html_url} to repo ${targetRepo} ${actorRequest}`
-    );
-    await transferIssue(
-      await getAuthToken(auth, payload.installation.id),
-      payload.repository.owner.login,
-      sourceRepo,
-      targetRepo,
-      payload.issue.node_id
-    );
-    return;
+    const enabled = await transferEnabled(octokit, config);
+
+    if (enabled) {
+      const targetRepo = transferMatches[1];
+      console.log(
+        `${id} Transferring issue ${payload.issue.html_url} to repo ${targetRepo} ${actorRequest}`
+      );
+      await transferIssue(
+        await getAuthToken(auth, payload.installation.id),
+        payload.repository.owner.login,
+        sourceRepo,
+        targetRepo,
+        payload.issue.node_id
+      );
+      return;
+    } else {
+      await reportError(
+        authToken,
+        payload.issue.node_id,
+        "/transfer is not enabled for this repository"
+      );
+    }
   }
 
   const closeMatches = closeMatcher(payload.comment.body);
@@ -70,18 +98,23 @@ export async function router(auth, id, payload, verbose) {
   const labelMatches = labelMatcher(payload.comment.body);
   if (labelMatches) {
     const labels = extractCommaSeparated(labelMatches[1]);
+    const result = await labelEnabled(octokit, config, labels);
 
-    console.log(
-      `${id} Labeling issue ${payload.issue.html_url} with labels ${labels} ${actorRequest}`
-    );
-    await addLabel(
-      await getAuthToken(auth, payload.installation.id),
-      payload.repository.owner.login,
-      sourceRepo,
-      payload.issue.node_id,
-      labels
-    );
-    return;
+    if (result.enabled) {
+      console.log(
+        `${id} Labeling issue ${payload.issue.html_url} with labels ${labels} ${actorRequest}`
+      );
+      await addLabel(
+        await getAuthToken(auth, payload.installation.id),
+        payload.repository.owner.login,
+        sourceRepo,
+        payload.issue.node_id,
+        labels
+      );
+      return;
+    } else {
+      await reportError(authToken, payload.issue.node_id, result.error);
+    }
   }
 
   const removeLabelMatches = removeLabelMatcher(payload.comment.body);
