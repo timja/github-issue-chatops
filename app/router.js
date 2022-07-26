@@ -20,8 +20,7 @@ import { extractCommaSeparated, extractUsersAndTeams } from "./converters.js";
 import { labelEnabled, transferEnabled } from "./command-enabled.js";
 import { defaultConfig } from "./default-config.js";
 
-const { Octokit } = require("@octokit/core");
-const { config, composeConfigGet } = require("@probot/octokit-plugin-config");
+import { Octokit } from "@octokit/core";
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
