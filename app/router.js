@@ -21,6 +21,7 @@ import { labelEnabled, transferEnabled } from "./command-enabled.js";
 import { defaultConfig } from "./default-config.js";
 
 import { Octokit } from "@octokit/core";
+import { config as octoKitConfig } from "@probot/octokit-plugin-config";
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
@@ -28,7 +29,8 @@ export async function router(auth, id, payload, verbose) {
   const actorRequest = `as requested by ${payload.sender.login}`;
 
   const authToken = await getAuthToken(auth, payload.installation.id);
-  const octokit = new Octokit({ auth: authToken });
+  const OctokitConfig = Octokit.plugin(octoKitConfig);
+  const octokit = new OctokitConfig({ auth: authToken });
 
   // TODO validate against schema
   const { config } = await octokit.config.get({
@@ -37,6 +39,8 @@ export async function router(auth, id, payload, verbose) {
     path: ".github/comment-ops.yml",
     defaults: defaultConfig,
   });
+
+  console.log("jsonConfig", JSON.stringify(config));
 
   if (transferMatches) {
     const enabled = await transferEnabled(octokit, config);

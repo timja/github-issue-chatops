@@ -18,7 +18,9 @@ export function labelEnabled(octokit, config, labels) {
   if (!labels.includes(labelConfig.allowed_labels[0])) {
     return {
       enabled: false,
-      error: `${labels} doesn't match the allowed labels ${labelConfig.allowed_labels}`,
+      error: `${labels} doesn't match the allowed labels \`${labelConfig.allowed_labels.join(
+        ","
+      )}\``,
     };
   }
 
