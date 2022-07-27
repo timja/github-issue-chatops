@@ -2,14 +2,12 @@ export const defaultConfig = {
   commands: {
     label: {
       permission: "author-or-member",
-      // TODO wildcard
-      allowed_labels: ["enhancement"],
+      allowed_labels: [],
       enabled: true,
     },
     "remove-label": {
       permission: "none",
-      // TODO wildcard
-      allowed_labels: ["enhancement"],
+      allowed_labels: [],
       enabled: true,
     },
     reopen: {

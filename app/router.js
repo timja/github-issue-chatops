@@ -11,8 +11,8 @@ import {
   closeIssue,
   removeLabel,
   reopenIssue,
-  requestReviewers,
   reportError,
+  requestReviewers,
   transferIssue,
 } from "./github.js";
 import { getAuthToken } from "./auth.js";
@@ -22,6 +22,8 @@ import { defaultConfig } from "./default-config.js";
 
 import { Octokit } from "@octokit/core";
 import { config as octoKitConfig } from "@probot/octokit-plugin-config";
+
+import deepmerge from "deepmerge";
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
@@ -37,10 +39,8 @@ export async function router(auth, id, payload, verbose) {
     owner: payload.repository.owner.login,
     repo: sourceRepo,
     path: ".github/comment-ops.yml",
-    defaults: defaultConfig,
+    defaults: (configs) => deepmerge.all([defaultConfig, ...configs]),
   });
-
-  console.log("jsonConfig", JSON.stringify(config));
 
   if (transferMatches) {
     const enabled = await transferEnabled(octokit, config);

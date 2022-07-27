@@ -17,7 +17,8 @@
     "@octokit/core": "^4.0.4",
     "@octokit/graphql": "^5.0.0",
     "@octokit/webhooks": "^10.0.9",
-    "@probot/octokit-plugin-config": "^1.1.5"
+    "@probot/octokit-plugin-config": "^1.1.5",
+    "deepmerge": "^4.2.2"
   },
   "devDependencies": {
     "@types/jest": "^28.1.6",

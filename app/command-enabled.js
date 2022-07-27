@@ -11,11 +11,15 @@ export function labelEnabled(octokit, config, labels) {
   if (!labelConfig.enabled) {
     return {
       enabled: false,
-      error: "/label is not enabled for this repository",
+      error: "The label command is not enabled for this repository",
     };
   }
 
-  if (!labels.includes(labelConfig.allowed_labels[0])) {
+  // TODO set intersection
+  if (
+    labelConfig.allowed_labels.length > 0 &&
+    !labels.includes(labelConfig.allowed_labels[0])
+  ) {
     return {
       enabled: false,
       error: `${labels} doesn't match the allowed labels \`${labelConfig.allowed_labels.join(
