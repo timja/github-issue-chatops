@@ -47,7 +47,5 @@ export function getCommands(commentBody) {
 }
 
 export function noneMatch(commands) {
-  return Object.keys(commands)
-    .map((key) => !!commands[key].matches)
-    .every((element) => element === false);
+  return !Object.values(commands).some((command) => command.matches);
 }
