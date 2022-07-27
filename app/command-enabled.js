@@ -2,7 +2,9 @@ export function transferEnabled(octokit, config) {
   const transferConfig = config.commands.transfer;
 
   // TODO check permissions
-  return Promise.resolve(transferConfig.enabled);
+  return {
+    enabled: transferConfig.enabled,
+  };
 }
 
 export function labelEnabled(octokit, config, labels) {
@@ -29,6 +31,30 @@ export function labelEnabled(octokit, config, labels) {
   }
 
   // TODO check permissions
+  return {
+    enabled: true,
+  };
+}
+
+export function closeEnabled(config, octokit) {
+  return {
+    enabled: true,
+  };
+}
+
+export function reopenEnabled(config, octokit) {
+  return {
+    enabled: true,
+  };
+}
+
+export function removeLabelEnabled(config, octokit, labels) {
+  return {
+    enabled: true,
+  };
+}
+
+export function reviewerEnabled(config, octokit) {
   return {
     enabled: true,
   };

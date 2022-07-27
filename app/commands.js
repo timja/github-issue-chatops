@@ -6,7 +6,14 @@ import {
   reviewerMatcher,
   transferMatcher,
 } from "./matchers.js";
-import { labelEnabled, transferEnabled } from "./command-enabled.js";
+import {
+  closeEnabled,
+  labelEnabled,
+  removeLabelEnabled,
+  reopenEnabled,
+  reviewerEnabled,
+  transferEnabled,
+} from "./command-enabled.js";
 
 export function getCommands(commentBody) {
   return {
@@ -16,9 +23,11 @@ export function getCommands(commentBody) {
     },
     close: {
       matches: closeMatcher(commentBody),
+      enabled: (config, octokit) => closeEnabled(config, octokit),
     },
     reopen: {
       matches: reopenMatcher(commentBody),
+      enabled: (config, octokit) => reopenEnabled(config, octokit),
     },
     label: {
       matches: labelMatcher(commentBody),
@@ -27,9 +36,12 @@ export function getCommands(commentBody) {
     },
     "remove-label": {
       matches: removeLabelMatcher(commentBody),
+      enabled: (config, octokit, labels) =>
+        removeLabelEnabled(config, octokit, labels),
     },
     reviewer: {
       matches: reviewerMatcher(commentBody),
+      enabled: (config, octokit) => reviewerEnabled(config, octokit),
     },
   };
 }

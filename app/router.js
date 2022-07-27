@@ -93,7 +93,7 @@ export async function router(auth, id, payload, verbose) {
   const labelMatches = commands.label.matches;
   if (labelMatches) {
     const labels = extractCommaSeparated(labelMatches[1]);
-    const result = await commands.label.enabled(octokit, config, labels);
+    const result = commands.label.enabled(octokit, config, labels);
 
     if (result.enabled) {
       console.log(
@@ -116,17 +116,23 @@ export async function router(auth, id, payload, verbose) {
   if (removeLabelMatches) {
     const labels = extractCommaSeparated(removeLabelMatches[1]);
 
-    console.log(
-      `${id} Removing label(s) from issue ${payload.issue.html_url}, labels ${labels} ${actorRequest}`
-    );
-    await removeLabel(
-      authToken,
-      payload.repository.owner.login,
-      sourceRepo,
-      payload.issue.node_id,
-      labels
-    );
-    return;
+    const result = commands["remove-label"].enabled(octokit, config, labels);
+
+    if (result.enabled) {
+      console.log(
+        `${id} Removing label(s) from issue ${payload.issue.html_url}, labels ${labels} ${actorRequest}`
+      );
+      await removeLabel(
+        authToken,
+        payload.repository.owner.login,
+        sourceRepo,
+        payload.issue.node_id,
+        labels
+      );
+      return;
+    } else {
+      await reportError(authToken, payload.issue.node_id, result.error);
+    }
   }
 
   const reviewerMatches = commands.reviewer.matches;
