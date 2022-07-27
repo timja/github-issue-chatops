@@ -1,12 +1,4 @@
 import {
-  closeMatcher,
-  labelMatcher,
-  removeLabelMatcher,
-  reopenMatcher,
-  reviewerMatcher,
-  transferMatcher,
-} from "./matchers.js";
-import {
   addLabel,
   closeIssue,
   removeLabel,
@@ -17,18 +9,26 @@ import {
 } from "./github.js";
 import { getAuthToken } from "./auth.js";
 import { extractCommaSeparated, extractUsersAndTeams } from "./converters.js";
-import { labelEnabled, transferEnabled } from "./command-enabled.js";
 import { defaultConfig } from "./default-config.js";
 
 import { Octokit } from "@octokit/core";
 import { config as octoKitConfig } from "@probot/octokit-plugin-config";
 
 import deepmerge from "deepmerge";
+import { getCommands, noneMatch } from "./commands.js";
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
-  const transferMatches = transferMatcher(payload.comment.body);
   const actorRequest = `as requested by ${payload.sender.login}`;
+
+  const commands = getCommands(payload.comment.body);
+
+  if (noneMatch(commands)) {
+    if (verbose) {
+      console.log("No match for", payload.comment.body);
+    }
+    return;
+  }
 
   const authToken = await getAuthToken(auth, payload.installation.id);
   const OctokitConfig = Octokit.plugin(octoKitConfig);
@@ -42,8 +42,9 @@ export async function router(auth, id, payload, verbose) {
     defaults: (configs) => deepmerge.all([defaultConfig, ...configs]),
   });
 
-  if (transferMatches) {
-    const enabled = await transferEnabled(octokit, config);
+  const transferMatches = commands.transfer.matches;
+  if (commands.transfer.matches) {
+    const enabled = await commands.transfer.enabled(octokit, config);
 
     if (enabled) {
       const targetRepo = transferMatches[1];
@@ -51,7 +52,7 @@ export async function router(auth, id, payload, verbose) {
         `${id} Transferring issue ${payload.issue.html_url} to repo ${targetRepo} ${actorRequest}`
       );
       await transferIssue(
-        await getAuthToken(auth, payload.installation.id),
+        authToken,
         payload.repository.owner.login,
         sourceRepo,
         targetRepo,
@@ -67,7 +68,7 @@ export async function router(auth, id, payload, verbose) {
     }
   }
 
-  const closeMatches = closeMatcher(payload.comment.body);
+  const closeMatches = commands.close.matches;
   if (closeMatches) {
     const reason =
       closeMatches.length > 1 && closeMatches[1] === "not-planned"
@@ -76,39 +77,30 @@ export async function router(auth, id, payload, verbose) {
     console.log(
       `${id} Closing issue ${payload.issue.html_url}, reason: ${reason} ${actorRequest}`
     );
-    await closeIssue(
-      await getAuthToken(auth, payload.installation.id),
-      sourceRepo,
-      payload.issue.node_id,
-      reason
-    );
+    await closeIssue(authToken, sourceRepo, payload.issue.node_id, reason);
     return;
   }
 
-  const reopenMatches = reopenMatcher(payload.comment.body);
+  const reopenMatches = commands.reopen.matches;
   if (reopenMatches) {
     console.log(
       `${id} Re-opening issue ${payload.issue.html_url} ${actorRequest}`
     );
-    await reopenIssue(
-      await getAuthToken(auth, payload.installation.id),
-      sourceRepo,
-      payload.issue.node_id
-    );
+    await reopenIssue(authToken, sourceRepo, payload.issue.node_id);
     return;
   }
 
-  const labelMatches = labelMatcher(payload.comment.body);
+  const labelMatches = commands.label.matches;
   if (labelMatches) {
     const labels = extractCommaSeparated(labelMatches[1]);
-    const result = await labelEnabled(octokit, config, labels);
+    const result = await commands.label.enabled(octokit, config, labels);
 
     if (result.enabled) {
       console.log(
         `${id} Labeling issue ${payload.issue.html_url} with labels ${labels} ${actorRequest}`
       );
       await addLabel(
-        await getAuthToken(auth, payload.installation.id),
+        authToken,
         payload.repository.owner.login,
         sourceRepo,
         payload.issue.node_id,
@@ -120,7 +112,7 @@ export async function router(auth, id, payload, verbose) {
     }
   }
 
-  const removeLabelMatches = removeLabelMatcher(payload.comment.body);
+  const removeLabelMatches = commands["remove-label"].matches;
   if (removeLabelMatches) {
     const labels = extractCommaSeparated(removeLabelMatches[1]);
 
@@ -128,7 +120,7 @@ export async function router(auth, id, payload, verbose) {
       `${id} Removing label(s) from issue ${payload.issue.html_url}, labels ${labels} ${actorRequest}`
     );
     await removeLabel(
-      await getAuthToken(auth, payload.installation.id),
+      authToken,
       payload.repository.owner.login,
       sourceRepo,
       payload.issue.node_id,
@@ -137,7 +129,7 @@ export async function router(auth, id, payload, verbose) {
     return;
   }
 
-  const reviewerMatches = reviewerMatcher(payload.comment.body);
+  const reviewerMatches = commands.reviewer.matches;
   if (reviewerMatches) {
     console.log(
       `${id} Requesting review for ${reviewerMatches[1]} at ${payload.issue.html_url} ${actorRequest}`
@@ -147,7 +139,7 @@ export async function router(auth, id, payload, verbose) {
       reviewerMatches[1]
     );
     await requestReviewers(
-      await getAuthToken(auth, payload.installation.id),
+      authToken,
       payload.repository.owner.login,
       sourceRepo,
       payload.issue.node_id,
@@ -155,9 +147,5 @@ export async function router(auth, id, payload, verbose) {
       reviewers.teams
     );
     return;
-  }
-
-  if (verbose) {
-    console.log("No match for", payload.comment.body);
   }
 }

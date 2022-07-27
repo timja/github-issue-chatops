@@ -2,7 +2,7 @@ export function transferEnabled(octokit, config) {
   const transferConfig = config.commands.transfer;
 
   // TODO check permissions
-  return transferConfig.enabled;
+  return Promise.resolve(transferConfig.enabled);
 }
 
 export function labelEnabled(octokit, config, labels) {
