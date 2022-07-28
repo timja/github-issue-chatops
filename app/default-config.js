@@ -5,7 +5,7 @@ export const defaultConfig = {
       allowed_labels: [],
       enabled: true,
     },
-    "remove-label": {
+    removeLabel: {
       permission: "none",
       allowed_labels: [],
       enabled: true,
