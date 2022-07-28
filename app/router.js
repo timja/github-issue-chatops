@@ -32,64 +32,15 @@ export async function router(auth, id, payload, verbose) {
     defaults: (configs) => deepmerge.all([defaultConfig, ...configs]),
   });
 
-  const transferMatches = commands.transfer.matches;
-  if (commands.transfer.matches) {
-    const enabled = commands.transfer.enabled(octokit, config, transferMatches);
-
-    if (enabled) {
-      await commands.transfer.run(id, payload, authToken, transferMatches);
-    } else {
-      await reportError(
-        authToken,
-        payload.issue.node_id,
-        "/transfer is not enabled for this repository"
-      );
-    }
-  }
-
-  const closeMatches = commands.close.matches;
-  if (closeMatches) {
-    await commands.close.run(id, payload, authToken, closeMatches);
-  }
-
-  const reopenMatches = commands.reopen.matches;
-  if (reopenMatches) {
-    await commands.reopen.run(id, payload, authToken, reopenMatches);
-  }
-
-  const labelMatches = commands.label.matches;
-  if (labelMatches) {
-    const result = commands.label.enabled(octokit, config, labelMatches);
-
+  const runCommands = Object.values(commands).filter(
+    (command) => command.matches
+  );
+  for (const command of runCommands) {
+    const result = command.enabled(octokit, config, command.matches);
     if (result.enabled) {
-      await commands.label.run(id, payload, authToken, labelMatches);
+      await command.run(id, payload, authToken, command.matches);
     } else {
       await reportError(authToken, payload.issue.node_id, result.error);
     }
-  }
-
-  const removeLabelMatches = commands.removeLabel.matches;
-  if (removeLabelMatches) {
-    const result = commands.removeLabel.enabled(
-      octokit,
-      config,
-      removeLabelMatches
-    );
-
-    if (result.enabled) {
-      await commands.removeLabel.run(
-        id,
-        payload,
-        authToken,
-        removeLabelMatches
-      );
-    } else {
-      await reportError(authToken, payload.issue.node_id, result.error);
-    }
-  }
-
-  const reviewerMatches = commands.reviewer.matches;
-  if (reviewerMatches) {
-    await commands.reviewer.run(id, payload, authToken, reviewerMatches);
   }
 }
