@@ -1,14 +1,5 @@
-import {
-  addLabel,
-  closeIssue,
-  removeLabel,
-  reopenIssue,
-  reportError,
-  requestReviewers,
-  transferIssue,
-} from "./github.js";
+import { reportError } from "./github.js";
 import { getAuthToken } from "./auth.js";
-import { extractCommaSeparated, extractUsersAndTeams } from "./converters.js";
 import { defaultConfig } from "./default-config.js";
 
 import { Octokit } from "@octokit/core";
@@ -19,7 +10,6 @@ import { getCommands, noneMatch } from "./commands.js";
 
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
-  const actorRequest = `as requested by ${payload.sender.login}`;
 
   const commands = getCommands(payload.comment.body);
 
@@ -44,21 +34,10 @@ export async function router(auth, id, payload, verbose) {
 
   const transferMatches = commands.transfer.matches;
   if (commands.transfer.matches) {
-    const enabled = await commands.transfer.enabled(octokit, config);
+    const enabled = commands.transfer.enabled(octokit, config, transferMatches);
 
     if (enabled) {
-      const targetRepo = transferMatches[1];
-      console.log(
-        `${id} Transferring issue ${payload.issue.html_url} to repo ${targetRepo} ${actorRequest}`
-      );
-      await transferIssue(
-        authToken,
-        payload.repository.owner.login,
-        sourceRepo,
-        targetRepo,
-        payload.issue.node_id
-      );
-      return;
+      await commands.transfer.run(id, payload, authToken, transferMatches);
     } else {
       await reportError(
         authToken,
@@ -70,66 +49,40 @@ export async function router(auth, id, payload, verbose) {
 
   const closeMatches = commands.close.matches;
   if (closeMatches) {
-    const reason =
-      closeMatches.length > 1 && closeMatches[1] === "not-planned"
-        ? "NOT_PLANNED"
-        : "COMPLETED";
-    console.log(
-      `${id} Closing issue ${payload.issue.html_url}, reason: ${reason} ${actorRequest}`
-    );
-    await closeIssue(authToken, sourceRepo, payload.issue.node_id, reason);
-    return;
+    await commands.close.run(id, payload, authToken, closeMatches);
   }
 
   const reopenMatches = commands.reopen.matches;
   if (reopenMatches) {
-    console.log(
-      `${id} Re-opening issue ${payload.issue.html_url} ${actorRequest}`
-    );
-    await reopenIssue(authToken, sourceRepo, payload.issue.node_id);
-    return;
+    await commands.reopen.run(id, payload, authToken, reopenMatches);
   }
 
   const labelMatches = commands.label.matches;
   if (labelMatches) {
-    const labels = extractCommaSeparated(labelMatches[1]);
-    const result = commands.label.enabled(octokit, config, labels);
+    const result = commands.label.enabled(octokit, config, labelMatches);
 
     if (result.enabled) {
-      console.log(
-        `${id} Labeling issue ${payload.issue.html_url} with labels ${labels} ${actorRequest}`
-      );
-      await addLabel(
-        authToken,
-        payload.repository.owner.login,
-        sourceRepo,
-        payload.issue.node_id,
-        labels
-      );
-      return;
+      await commands.label.run(id, payload, authToken, labelMatches);
     } else {
       await reportError(authToken, payload.issue.node_id, result.error);
     }
   }
 
-  const removeLabelMatches = commands["remove-label"].matches;
+  const removeLabelMatches = commands.removeLabel.matches;
   if (removeLabelMatches) {
-    const labels = extractCommaSeparated(removeLabelMatches[1]);
-
-    const result = commands["remove-label"].enabled(octokit, config, labels);
+    const result = commands.removeLabel.enabled(
+      octokit,
+      config,
+      removeLabelMatches
+    );
 
     if (result.enabled) {
-      console.log(
-        `${id} Removing label(s) from issue ${payload.issue.html_url}, labels ${labels} ${actorRequest}`
-      );
-      await removeLabel(
+      await commands.removeLabel.run(
+        id,
+        payload,
         authToken,
-        payload.repository.owner.login,
-        sourceRepo,
-        payload.issue.node_id,
-        labels
+        removeLabelMatches
       );
-      return;
     } else {
       await reportError(authToken, payload.issue.node_id, result.error);
     }
@@ -137,21 +90,6 @@ export async function router(auth, id, payload, verbose) {
 
   const reviewerMatches = commands.reviewer.matches;
   if (reviewerMatches) {
-    console.log(
-      `${id} Requesting review for ${reviewerMatches[1]} at ${payload.issue.html_url} ${actorRequest}`
-    );
-    const reviewers = extractUsersAndTeams(
-      payload.repository.owner.login,
-      reviewerMatches[1]
-    );
-    await requestReviewers(
-      authToken,
-      payload.repository.owner.login,
-      sourceRepo,
-      payload.issue.node_id,
-      reviewers.users,
-      reviewers.teams
-    );
-    return;
+    await commands.reviewer.run(id, payload, authToken, reviewerMatches);
   }
 }
