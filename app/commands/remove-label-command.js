@@ -2,7 +2,7 @@ import { removeLabelMatcher } from "../matchers.js";
 import { removeLabelEnabled } from "../command-enabled.js";
 import { removeLabel } from "../github.js";
 import { Command } from "./command.js";
-import { actorRequest } from "./actorRequest.js";
+import { actorRequest } from "./actor-request.js";
 import { extractCommaSeparated } from "../converters.js";
 
 export class RemoveLabelCommand extends Command {

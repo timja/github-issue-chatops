@@ -2,7 +2,7 @@ import { Command } from "./command.js";
 import { closeMatcher } from "../matchers.js";
 import { closeEnabled } from "../command-enabled.js";
 import { closeIssue } from "../github.js";
-import { actorRequest } from "./actorRequest.js";
+import { actorRequest } from "./actor-request.js";
 
 export class CloseCommand extends Command {
   constructor(id, payload) {

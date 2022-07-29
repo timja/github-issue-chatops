@@ -2,7 +2,7 @@ import { reviewerMatcher } from "../matchers.js";
 import { reviewerEnabled } from "../command-enabled.js";
 import { requestReviewers } from "../github.js";
 import { Command } from "./command.js";
-import { actorRequest } from "./actorRequest.js";
+import { actorRequest } from "./actor-request.js";
 import { extractUsersAndTeams } from "../converters.js";
 
 export class ReviewerCommand extends Command {

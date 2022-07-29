@@ -2,7 +2,7 @@ import { transferMatcher } from "../matchers.js";
 import { transferEnabled } from "../command-enabled.js";
 import { transferIssue } from "../github.js";
 import { Command } from "./command.js";
-import { actorRequest } from "./actorRequest.js";
+import { actorRequest } from "./actor-request.js";
 
 export class TransferCommand extends Command {
   constructor(id, payload) {

@@ -1,9 +1,9 @@
-import { TransferCommand } from "./commands/transferCommand.js";
-import { CloseCommand } from "./commands/closeCommand.js";
-import { ReopenCommand } from "./commands/reopenCommand.js";
-import { LabelCommand } from "./commands/labelCommand.js";
-import { RemoveLabelCommand } from "./commands/removeLabelCommand.js";
-import { ReviewerCommand } from "./commands/reviewerCommand.js";
+import { TransferCommand } from "./commands/transfer-command.js";
+import { CloseCommand } from "./commands/close-command.js";
+import { ReopenCommand } from "./commands/reopen-command.js";
+import { LabelCommand } from "./commands/label-command.js";
+import { RemoveLabelCommand } from "./commands/remove-label-command.js";
+import { ReviewerCommand } from "./commands/reviewer-command.js";
 
 export function getCommands(id, payload) {
   return [
@@ -17,5 +17,7 @@ export function getCommands(id, payload) {
 }
 
 export function noneMatch(commands) {
-  return commands.some((command) => command.matches);
+  return !commands.some((command) => {
+    return command.matches() !== null;
+  });
 }

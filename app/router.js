@@ -14,6 +14,7 @@ export async function router(auth, id, payload, verbose) {
   const commands = getCommands(id, payload);
 
   if (noneMatch(commands)) {
+    console.log("none match");
     if (verbose) {
       console.log("No match for", payload.comment.body);
     }
@@ -33,9 +34,7 @@ export async function router(auth, id, payload, verbose) {
     defaults: (configs) => deepmerge.all([defaultConfig, ...configs]),
   });
 
-  const runCommands = Object.values(commands).filter((command) =>
-    command.matches()
-  );
+  const runCommands = commands.filter((command) => command.matches());
   for (const command of runCommands) {
     const result = command.enabled(config);
     result.enabled

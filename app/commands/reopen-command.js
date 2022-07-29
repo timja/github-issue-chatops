@@ -2,7 +2,7 @@ import { reopenMatcher } from "../matchers.js";
 import { reopenEnabled } from "../command-enabled.js";
 import { reopenIssue } from "../github.js";
 import { Command } from "./command.js";
-import { actorRequest } from "./actorRequest.js";
+import { actorRequest } from "./actor-request.js";
 
 export class ReopenCommand extends Command {
   constructor(id, payload) {

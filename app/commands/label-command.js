@@ -2,7 +2,7 @@ import { labelMatcher } from "../matchers.js";
 import { labelEnabled } from "../command-enabled.js";
 import { addLabel } from "../github.js";
 import { Command } from "./command.js";
-import { actorRequest } from "./actorRequest.js";
+import { actorRequest } from "./actor-request.js";
 import { extractCommaSeparated } from "../converters.js";
 
 export class LabelCommand extends Command {
