@@ -211,7 +211,7 @@ async function lookupTeam(token, organization, teamName, originalTeamName) {
   };
 }
 
-async function reportError(token, subjectId, comment) {
+export async function reportError(token, subjectId, comment) {
   await graphql(
     `
       mutation ($comment: String!, $subjectId: ID!) {

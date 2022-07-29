@@ -5,6 +5,34 @@ It uses GitHub webhooks to scale across repositories without needing to add a Gi
 
 GitHub apps are used for authentication to limit the required permissions.
 
+## Configuration
+
+The app can be configured with a `.github/comment-ops.yml` file in the main branch of the repository.
+
+This can also be applied organization wide by creating it in the organization's `.github` repository.
+
+The order of configuration is:
+
+`default config` -> `organization` -> `repository`
+
+Default configuration:
+
+```yaml
+commands:
+  label:
+    allowedLabels: [] # any label is allowed
+    enabled: true
+  removeLabel:
+    allowedLabels: [] # any label is allowed
+    enabled: true
+  reopen:
+    enabled: true
+  reviewer:
+    enabled: true
+  transfer:
+    enabled: true
+```
+
 ## Getting started
 
 First you will need to create a GitHub app. Add the permissions required for the commands you are using (see next section), and tick "Subscribe to events" > "Issue comment"

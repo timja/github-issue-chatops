@@ -9,7 +9,4 @@ services:
     environment:
       - GITHUB_APP_ID
       - GITHUB_APP_PRIVATE_KEY
-      - GITHUB_APP_INSTALLATION_ID
-      - SOURCE_OWNER
-      - TARGET_OWNER
       - WEBHOOK_SECRET
