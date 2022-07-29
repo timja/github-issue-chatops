@@ -5,7 +5,7 @@ const enabled = {
 function notEnabled(command) {
   return {
     enabled: false,
-    error: `The ${command} is not enabled for this repository`,
+    error: `The \`${command}\` is not enabled for this repository`,
   };
 }
 
