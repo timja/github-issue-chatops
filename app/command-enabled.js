@@ -24,10 +24,10 @@ export function labelEnabled(config, labels) {
     return notEnabled("label");
   }
 
-  // TODO set intersection
   if (
+    // if length is = 0 then all labels are allowed
     labelConfig.allowedLabels.length > 0 &&
-    !labels.includes(labelConfig.allowedLabels[0])
+    !labels.every((label) => labelConfig.allowedLabels.includes(label))
   ) {
     return {
       enabled: false,
@@ -57,8 +57,22 @@ export function reopenEnabled(config) {
 }
 
 export function removeLabelEnabled(config, labels) {
-  if (!config.commands.removeLabel.enabled) {
+  const labelConfig = config.commands.removeLabel;
+  if (!labelConfig.enabled) {
     return notEnabled("remove-label");
+  }
+
+  if (
+    // if length is = 0 then all labels are allowed
+    labelConfig.allowedLabels.length > 0 &&
+    !labels.every((label) => labelConfig.allowedLabels.includes(label))
+  ) {
+    return {
+      enabled: false,
+      error: `${labels} doesn't match the allowed labels \`${labelConfig.allowedLabels.join(
+        ","
+      )}\``,
+    };
   }
 
   return enabled;

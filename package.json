@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint": "eslint . && prettier --check .",
+    "lint:fix": "prettier --write . && eslint --fix ."
   },
   "author": "",
   "type": "module",
