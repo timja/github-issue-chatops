@@ -25,6 +25,7 @@ export async function router(auth, id, payload, verbose) {
   const octokit = new OctokitConfig({ auth: authToken });
 
   // TODO validate against schema
+  // noinspection JSUnusedGlobalSymbols
   const { config } = await octokit.config.get({
     owner: payload.repository.owner.login,
     repo: sourceRepo,
@@ -36,11 +37,9 @@ export async function router(auth, id, payload, verbose) {
     (command) => command.matches
   );
   for (const command of runCommands) {
-    const result = command.enabled(octokit, config, command.matches);
-    if (result.enabled) {
-      await command.run(id, payload, authToken, command.matches);
-    } else {
-      await reportError(authToken, payload.issue.node_id, result.error);
-    }
+    const result = command.enabled(config);
+    result.enabled
+      ? await command.run(id, payload, authToken)
+      : await reportError(authToken, payload.issue.node_id, result.error);
   }
 }

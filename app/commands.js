@@ -32,9 +32,9 @@ export function getCommands(commentBody) {
   return {
     transfer: {
       matches: transferMatcher(commentBody),
-      enabled: (config, octokit) => transferEnabled(octokit, config),
-      run: async (id, payload, authToken, matches) => {
-        const targetRepo = matches[1];
+      enabled: (config) => transferEnabled(config),
+      run: async (id, payload, authToken) => {
+        const targetRepo = this.matches[1];
         const sourceRepo = payload.repository.name;
         console.log(
           `${id} Transferring issue ${
@@ -52,9 +52,10 @@ export function getCommands(commentBody) {
     },
     close: {
       matches: closeMatcher(commentBody),
-      enabled: (config, octokit) => closeEnabled(config, octokit),
-      run: async (id, payload, authToken, closeMatches) => {
+      enabled: (config) => closeEnabled(config),
+      run: async (id, payload, authToken) => {
         const sourceRepo = payload.repository.name;
+        const closeMatches = this.matches;
         const reason =
           closeMatches.length > 1 && closeMatches[1] === "not-planned"
             ? "NOT_PLANNED"
@@ -69,7 +70,7 @@ export function getCommands(commentBody) {
     },
     reopen: {
       matches: reopenMatcher(commentBody),
-      enabled: (config, octokit) => reopenEnabled(config, octokit),
+      enabled: (config) => reopenEnabled(config),
       run: async (id, payload, authToken) => {
         const sourceRepo = payload.repository.name;
         console.log(
@@ -82,12 +83,12 @@ export function getCommands(commentBody) {
     },
     label: {
       matches: labelMatcher(commentBody),
-      enabled: (octokit, config, matches) => {
-        const labels = extractCommaSeparated(matches[1]);
-        return labelEnabled(octokit, config, labels);
+      enabled: (config) => {
+        const labels = extractCommaSeparated(this.matches[1]);
+        return labelEnabled(config, labels);
       },
-      run: async (id, payload, authToken, matches) => {
-        const labels = extractCommaSeparated(matches[1]);
+      run: async (id, payload, authToken) => {
+        const labels = extractCommaSeparated(this.matches[1]);
         const sourceRepo = payload.repository.name;
 
         console.log(
@@ -106,13 +107,13 @@ export function getCommands(commentBody) {
     },
     removeLabel: {
       matches: removeLabelMatcher(commentBody),
-      enabled: (config, octokit, matches) => {
-        const labels = extractCommaSeparated(matches[1]);
-        return removeLabelEnabled(config, octokit, labels);
+      enabled: (config) => {
+        const labels = extractCommaSeparated(this.matches[1]);
+        return removeLabelEnabled(config, labels);
       },
-      run: async (id, payload, authToken, matches) => {
+      run: async (id, payload, authToken) => {
         const sourceRepo = payload.repository.name;
-        const labels = extractCommaSeparated(matches[1]);
+        const labels = extractCommaSeparated(this.matches[1]);
         console.log(
           `${id} Removing label(s) from issue ${
             payload.issue.html_url
@@ -129,9 +130,9 @@ export function getCommands(commentBody) {
     },
     reviewer: {
       matches: reviewerMatcher(commentBody),
-      enabled: (config, octokit) => reviewerEnabled(config, octokit),
-      run: async (id, payload, authToken, matches) => {
-        const reviewerMatches = matches[1];
+      enabled: (config) => reviewerEnabled(config),
+      run: async (id, payload, authToken) => {
+        const reviewerMatches = this.matches[1];
         const sourceRepo = payload.repository.name;
         console.log(
           `${id} Requesting review for ${reviewerMatches} at ${

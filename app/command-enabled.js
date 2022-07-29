@@ -1,61 +1,73 @@
-export function transferEnabled(octokit, config) {
-  const transferConfig = config.commands.transfer;
+const enabled = {
+  enabled: true,
+};
 
-  // TODO check permissions
+function notEnabled(command) {
   return {
-    enabled: transferConfig.enabled,
+    enabled: false,
+    error: `The ${command} is not enabled for this repository`,
   };
 }
 
-export function labelEnabled(octokit, config, labels) {
+export function transferEnabled(config) {
+  if (!config.commands.transfer.enabled) {
+    return notEnabled("transfer");
+  }
+
+  return enabled;
+}
+
+export function labelEnabled(config, labels) {
   const labelConfig = config.commands.label;
 
   if (!labelConfig.enabled) {
-    return {
-      enabled: false,
-      error: "The label command is not enabled for this repository",
-    };
+    return notEnabled("label");
   }
 
   // TODO set intersection
   if (
-    labelConfig.allowed_labels.length > 0 &&
-    !labels.includes(labelConfig.allowed_labels[0])
+    labelConfig.allowedLabels.length > 0 &&
+    !labels.includes(labelConfig.allowedLabels[0])
   ) {
     return {
       enabled: false,
-      error: `${labels} doesn't match the allowed labels \`${labelConfig.allowed_labels.join(
+      error: `${labels} doesn't match the allowed labels \`${labelConfig.allowedLabels.join(
         ","
       )}\``,
     };
   }
 
-  // TODO check permissions
-  return {
-    enabled: true,
-  };
+  return enabled;
 }
 
-export function closeEnabled(config, octokit) {
-  return {
-    enabled: true,
-  };
+export function closeEnabled(config) {
+  if (!config.commands.close.enabled) {
+    return notEnabled("close");
+  }
+
+  return enabled;
 }
 
-export function reopenEnabled(config, octokit) {
-  return {
-    enabled: true,
-  };
+export function reopenEnabled(config) {
+  if (!config.commands.reopen.enabled) {
+    return notEnabled("reopen");
+  }
+
+  return enabled;
 }
 
-export function removeLabelEnabled(config, octokit, labels) {
-  return {
-    enabled: true,
-  };
+export function removeLabelEnabled(config, labels) {
+  if (!config.commands.removeLabel.enabled) {
+    return notEnabled("remove-label");
+  }
+
+  return enabled;
 }
 
-export function reviewerEnabled(config, octokit) {
-  return {
-    enabled: true,
-  };
+export function reviewerEnabled(config) {
+  if (!config.commands.reviewer.enabled) {
+    return notEnabled("reviewer");
+  }
+
+  return enabled;
 }
