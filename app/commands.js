@@ -6,16 +6,16 @@ import { RemoveLabelCommand } from "./commands/removeLabelCommand.js";
 import { ReviewerCommand } from "./commands/reviewerCommand.js";
 
 export function getCommands(id, payload) {
-  return {
-    transfer: new TransferCommand(id, payload),
-    close: new CloseCommand(id, payload),
-    reopen: new ReopenCommand(id, payload),
-    label: new LabelCommand(id, payload),
-    removeLabel: new RemoveLabelCommand(id, payload),
-    reviewer: new ReviewerCommand(id, payload),
-  };
+  return [
+    new TransferCommand(id, payload),
+    new CloseCommand(id, payload),
+    new ReopenCommand(id, payload),
+    new LabelCommand(id, payload),
+    new RemoveLabelCommand(id, payload),
+    new ReviewerCommand(id, payload),
+  ];
 }
 
 export function noneMatch(commands) {
-  return !Object.values(commands).some((command) => command.matches);
+  return commands.some((command) => command.matches);
 }
