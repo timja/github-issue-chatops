@@ -11,11 +11,11 @@ export function reopenMatcher(text) {
 }
 
 export function labelMatcher(text) {
-  return text.match(/\/label ([\sA-Za-z\d-,]+)/);
+  return text.match(/\/label ([\sA-Za-z\d-,:/]+)/);
 }
 
 export function removeLabelMatcher(text) {
-  return text.match(/\/remove-label ([\sA-Za-z\d-,]+)/);
+  return text.match(/\/remove-label ([\sA-Za-z\d-,:/]+)/);
 }
 
 export function reviewerMatcher(text) {

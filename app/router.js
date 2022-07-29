@@ -11,7 +11,7 @@ import { getCommands, noneMatch } from "./commands.js";
 export async function router(auth, id, payload, verbose) {
   const sourceRepo = payload.repository.name;
 
-  const commands = getCommands(payload.comment.body);
+  const commands = getCommands(id, payload);
 
   if (noneMatch(commands)) {
     if (verbose) {
@@ -33,13 +33,13 @@ export async function router(auth, id, payload, verbose) {
     defaults: (configs) => deepmerge.all([defaultConfig, ...configs]),
   });
 
-  const runCommands = Object.values(commands).filter(
-    (command) => command.matches
+  const runCommands = Object.values(commands).filter((command) =>
+    command.matches()
   );
   for (const command of runCommands) {
     const result = command.enabled(config);
     result.enabled
-      ? await command.run(id, payload, authToken)
+      ? await command.run(authToken)
       : await reportError(authToken, payload.issue.node_id, result.error);
   }
 }
