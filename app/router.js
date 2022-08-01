@@ -14,7 +14,6 @@ export async function router(auth, id, payload, verbose) {
   const commands = getCommands(id, payload);
 
   if (noneMatch(commands)) {
-    console.log("none match");
     if (verbose) {
       console.log("No match for", payload.comment.body);
     }

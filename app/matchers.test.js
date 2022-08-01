@@ -25,6 +25,19 @@ describe("matchers", () => {
 
       expect(result).toBeFalsy();
     });
+    test("only matches the current line", () => {
+      const result = transferMatcher("/transfer github-comment-ops\nasda");
+
+      expect(result).toBeTruthy();
+      expect(result[1]).toEqual("github-comment-ops");
+    });
+    test("does not match in the middle of a string", () => {
+      const result = transferMatcher(
+        "hello world/transfer github-comment-ops\nasda"
+      );
+
+      expect(result).toBeFalsy();
+    });
   });
 
   describe("close", () => {
@@ -65,6 +78,12 @@ describe("matchers", () => {
 
       expect(result).toBeFalsy();
     });
+
+    test("does not match in the middle of a string", () => {
+      const result = reopenMatcher("a string/reopen");
+
+      expect(result).toBeFalsy();
+    });
   });
 
   describe("label", () => {
@@ -73,6 +92,17 @@ describe("matchers", () => {
 
       expect(result).toBeTruthy();
       expect(result[1]).toEqual("label1");
+    });
+    test("only matches the current line", () => {
+      const result = labelMatcher("/label label1\nasda");
+
+      expect(result).toBeTruthy();
+      expect(result[1]).toEqual("label1");
+    });
+    test("does not match in the middle of a string", () => {
+      const result = labelMatcher("something cool/label label1\nasda");
+
+      expect(result).toBeFalsy();
     });
     test("does not match input without /label", () => {
       const result = labelMatcher("label label1");
@@ -131,6 +161,19 @@ describe("matchers", () => {
       expect(result).toBeTruthy();
       expect(result[1]).toEqual("label1,label 2 with spaces,label3");
     });
+    test("only matches the current line", () => {
+      const result = removeLabelMatcher("/remove-label label1\nasda");
+
+      expect(result).toBeTruthy();
+      expect(result[1]).toEqual("label1");
+    });
+    test("does not match in the middle of a string", () => {
+      const result = removeLabelMatcher(
+        "something cool/remove-label label1\nasda"
+      );
+
+      expect(result).toBeFalsy();
+    });
   });
 
   describe("reviewer", () => {
@@ -178,6 +221,18 @@ describe("matchers", () => {
 
       expect(result).toBeTruthy();
       expect(result[1]).toEqual("reviewer1 @reviewer2 @org/team");
+    });
+
+    test("only matches the current line", () => {
+      const result = reviewerMatcher("/reviewer reviewer1\nasda");
+
+      expect(result).toBeTruthy();
+      expect(result[1]).toEqual("reviewer1");
+    });
+    test("does not match in the middle of a string", () => {
+      const result = reviewerMatcher("something cool/reviewer reviewer1\nasda");
+
+      expect(result).toBeFalsy();
     });
   });
 });
